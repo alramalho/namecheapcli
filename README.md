@@ -2,10 +2,6 @@
 
 Small CLI wrapper for Namecheap domain and DNS record management.
 
-## Why Go
-
-Go is a good fit for this project because it builds to one portable binary, has strong standard-library HTTP/XML support, and keeps the runtime/dependency story simple for an administrative CLI.
-
 ## Configuration
 
 Create Namecheap API credentials and whitelist your current public IPv4 in Namecheap. Then export:
