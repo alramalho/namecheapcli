@@ -180,7 +180,7 @@ func (c *Client) do(ctx context.Context, command string, params url.Values, out 
 	}
 	resp, err := c.http.Do(req)
 	if err != nil {
-		return err
+		return redactRequestError(err)
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
@@ -197,6 +197,23 @@ func (c *Client) do(ctx context.Context, command string, params url.Values, out 
 		return apiError(out.Errors)
 	}
 	return nil
+}
+
+func redactRequestError(err error) error {
+	var urlErr *url.Error
+	if !errors.As(err, &urlErr) || urlErr.URL == "" {
+		return err
+	}
+	redacted, parseErr := url.Parse(urlErr.URL)
+	if parseErr != nil {
+		return fmt.Errorf("%s %s: %v", urlErr.Op, "<redacted-url>", urlErr.Err)
+	}
+	query := redacted.Query()
+	if query.Has("ApiKey") {
+		query.Set("ApiKey", "<redacted>")
+	}
+	redacted.RawQuery = query.Encode()
+	return fmt.Errorf("%s %q: %v", urlErr.Op, redacted.String(), urlErr.Err)
 }
 
 func apiError(messages []apiMessage) error {

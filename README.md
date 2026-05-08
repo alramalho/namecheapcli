@@ -17,12 +17,20 @@ Use `--sandbox` for Namecheap's sandbox API.
 
 ## Usage
 
+Install the CLI:
+
 ```sh
-go run ./cmd/namecheapcli --sandbox domains list
-go run ./cmd/namecheapcli --sandbox dns list example.com
-go run ./cmd/namecheapcli --sandbox dns add example.com A @ 203.0.113.10 --ttl 1800 --dry-run
-go run ./cmd/namecheapcli --sandbox dns set example.com CNAME www example.com --ttl 1800 --dry-run
-go run ./cmd/namecheapcli --sandbox dns delete example.com TXT _verify --dry-run
+go install ./cmd/namecheapcli
+```
+
+Then use the installed binary:
+
+```sh
+namecheapcli --sandbox domains list
+namecheapcli --sandbox dns list example.com
+namecheapcli --sandbox dns add example.com A @ 203.0.113.10 --ttl 1800 --dry-run
+namecheapcli --sandbox dns set example.com CNAME www example.com --ttl 1800 --dry-run
+namecheapcli --sandbox dns delete example.com TXT _verify --dry-run
 ```
 
 `dns add`, `dns set`, and `dns delete` are implemented as read-modify-write operations:

@@ -1,3 +1,4 @@
 /namecheapcli
 /.env
+/backups/
 *.test
