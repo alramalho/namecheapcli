@@ -6,7 +6,13 @@ Small CLI wrapper for Namecheap domain and DNS record management.
 
 Create Namecheap API credentials and whitelist your current public IPv4 in Namecheap.
 
-For day-to-day use, create a global config file at `~/.namecheapcli`:
+For day-to-day use, run the setup command once:
+
+```sh
+namecheapcli configure
+```
+
+That writes a private global config file at `~/.namecheapcli`:
 
 ```sh
 NAMECHEAP_API_USER=your-api-user
@@ -63,6 +69,7 @@ You can verify the installed binary directly with:
 Then use the installed binary from any directory:
 
 ```sh
+namecheapcli configure
 namecheapcli --sandbox domains list
 namecheapcli --sandbox dns list example.com
 namecheapcli --sandbox dns add example.com A @ 203.0.113.10 --ttl 1800 --dry-run

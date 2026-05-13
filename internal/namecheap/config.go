@@ -2,13 +2,14 @@ package namecheap
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
 func ConfigFromEnv(sandbox bool) Config {
-	config := configFromFile(defaultConfigPath())
+	config := configFromFile(DefaultConfigPath())
 	applyEnv(&config)
 	if config.Endpoint == "" && sandbox {
 		config.Endpoint = SandboxEndpoint
@@ -16,12 +17,42 @@ func ConfigFromEnv(sandbox bool) Config {
 	return config
 }
 
-func defaultConfigPath() string {
+func DefaultConfigPath() string {
 	home, err := os.UserHomeDir()
 	if err != nil || home == "" {
 		return ""
 	}
 	return filepath.Join(home, ".namecheapcli")
+}
+
+func WriteConfigFile(path string, config Config) error {
+	if path == "" {
+		return fmt.Errorf("config path is empty")
+	}
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	if _, err := fmt.Fprintf(file, "NAMECHEAP_API_USER=%s\n", config.APIUser); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(file, "NAMECHEAP_API_KEY=%s\n", config.APIKey); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(file, "NAMECHEAP_USERNAME=%s\n", config.UserName); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(file, "NAMECHEAP_CLIENT_IP=%s\n", config.ClientIP); err != nil {
+		return err
+	}
+	if config.Endpoint != "" {
+		if _, err := fmt.Fprintf(file, "NAMECHEAP_ENDPOINT=%s\n", config.Endpoint); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func configFromFile(path string) Config {

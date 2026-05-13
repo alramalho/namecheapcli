@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -42,6 +44,14 @@ func run(args []string) error {
 		return nil
 	}
 
+	switch args[0] {
+	case "configure":
+		return runConfigure(args[1:], os.Stdin, os.Stdout)
+	case "help", "-h", "--help":
+		usage()
+		return nil
+	}
+
 	client, err := namecheap.NewClient(namecheap.ConfigFromEnv(*sandbox))
 	if err != nil {
 		return err
@@ -53,12 +63,81 @@ func run(args []string) error {
 		return runDomains(ctx, client, args[1:], *jsonOut)
 	case "dns":
 		return runDNS(ctx, client, args[1:], *jsonOut)
-	case "help", "-h", "--help":
-		usage()
-		return nil
 	default:
 		return fmt.Errorf("unknown command %q", args[0])
 	}
+}
+
+func runConfigure(args []string, in io.Reader, out io.Writer) error {
+	flags := flag.NewFlagSet("configure", flag.ContinueOnError)
+	flags.SetOutput(os.Stderr)
+	apiUser := flags.String("api-user", "", "Namecheap API user")
+	apiKey := flags.String("api-key", "", "Namecheap API key")
+	username := flags.String("username", "", "Namecheap username")
+	clientIP := flags.String("client-ip", "", "Namecheap whitelisted public IPv4")
+	endpoint := flags.String("endpoint", "", "optional Namecheap API endpoint override")
+	if err := flags.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			return nil
+		}
+		return err
+	}
+	if flags.NArg() != 0 {
+		return errors.New("usage: namecheapcli configure [--api-user USER] [--api-key KEY] [--username USERNAME] [--client-ip IP] [--endpoint URL]")
+	}
+
+	reader := bufio.NewReader(in)
+	config := namecheap.Config{
+		APIUser:  strings.TrimSpace(*apiUser),
+		APIKey:   strings.TrimSpace(*apiKey),
+		UserName: strings.TrimSpace(*username),
+		ClientIP: strings.TrimSpace(*clientIP),
+		Endpoint: strings.TrimSpace(*endpoint),
+	}
+	var err error
+	if config.APIUser == "" {
+		config.APIUser, err = prompt(reader, out, "Namecheap API user")
+		if err != nil {
+			return err
+		}
+	}
+	if config.APIKey == "" {
+		config.APIKey, err = prompt(reader, out, "Namecheap API key")
+		if err != nil {
+			return err
+		}
+	}
+	if config.UserName == "" {
+		config.UserName, err = prompt(reader, out, "Namecheap username")
+		if err != nil {
+			return err
+		}
+	}
+	if config.ClientIP == "" {
+		config.ClientIP, err = prompt(reader, out, "Whitelisted public IPv4")
+		if err != nil {
+			return err
+		}
+	}
+	if config.APIUser == "" || config.APIKey == "" || config.UserName == "" || config.ClientIP == "" {
+		return errors.New("api user, api key, username, and client ip are required")
+	}
+
+	path := namecheap.DefaultConfigPath()
+	if err := namecheap.WriteConfigFile(path, config); err != nil {
+		return err
+	}
+	fmt.Fprintf(out, "Wrote %s\n", path)
+	return nil
+}
+
+func prompt(reader *bufio.Reader, out io.Writer, label string) (string, error) {
+	fmt.Fprintf(out, "%s: ", label)
+	value, err := reader.ReadString('\n')
+	if err != nil && !errors.Is(err, io.EOF) {
+		return "", err
+	}
+	return strings.TrimSpace(value), nil
 }
 
 func runDomains(ctx context.Context, client *namecheap.Client, args []string, jsonOut bool) error {
@@ -262,6 +341,7 @@ func printJSON(v any) error {
 
 func usage() {
 	fmt.Fprintln(os.Stderr, `Usage:
+  namecheapcli configure
   namecheapcli [--sandbox] [--json] domains list
   namecheapcli [--sandbox] [--json] dns list example.com
   namecheapcli [--sandbox] dns add example.com A @ 203.0.113.10 --ttl 1800 --dry-run
@@ -277,6 +357,9 @@ Environment:
 
 Config file:
   ~/.namecheapcli         optional KEY=VALUE file; env vars override it
+
+Setup:
+  namecheapcli configure writes ~/.namecheapcli for use from any directory
 
 Note: Namecheap setHosts replaces the full DNS host set. Mutation commands first fetch
 the current records, modify them locally, then submit the complete resulting set.`)

@@ -127,3 +127,43 @@ CLIENT_IP=203.0.113.10
 		t.Fatalf("Endpoint = %q; want env endpoint", config.Endpoint)
 	}
 }
+
+func TestWriteConfigFile(t *testing.T) {
+	path := filepath.Join(t.TempDir(), ".namecheapcli")
+
+	err := WriteConfigFile(path, Config{
+		APIUser:  "file-user",
+		APIKey:   "file-key",
+		UserName: "file-username",
+		ClientIP: "203.0.113.10",
+		Endpoint: "https://example.test/xml.response",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := info.Mode().Perm(); got != 0600 {
+		t.Fatalf("mode = %v; want 0600", got)
+	}
+
+	config := configFromFile(path)
+	if config.APIUser != "file-user" {
+		t.Fatalf("APIUser = %q; want file-user", config.APIUser)
+	}
+	if config.APIKey != "file-key" {
+		t.Fatalf("APIKey = %q; want file-key", config.APIKey)
+	}
+	if config.UserName != "file-username" {
+		t.Fatalf("UserName = %q; want file-username", config.UserName)
+	}
+	if config.ClientIP != "203.0.113.10" {
+		t.Fatalf("ClientIP = %q; want 203.0.113.10", config.ClientIP)
+	}
+	if config.Endpoint != "https://example.test/xml.response" {
+		t.Fatalf("Endpoint = %q; want endpoint", config.Endpoint)
+	}
+}
