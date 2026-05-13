@@ -275,6 +275,9 @@ Environment:
   NAMECHEAP_CLIENT_IP
   NAMECHEAP_ENDPOINT       optional override
 
+Config file:
+  ~/.namecheapcli         optional KEY=VALUE file; env vars override it
+
 Note: Namecheap setHosts replaces the full DNS host set. Mutation commands first fetch
 the current records, modify them locally, then submit the complete resulting set.`)
 }

@@ -1,0 +1,10 @@
+{"version":3,"term":{"cols":100,"rows":28},"timestamp":1778660500,"idle_time_limit":1.0,"command":"zsh -lc 'clear; export PATH=\"/Users/alramalho/go/bin:$PATH\"; printf \"namecheapcli demo\\n\\n\"; printf \"$ command -v namecheapcli\\n\"; command -v namecheapcli; printf \"\\n$ namecheapcli help\\n\"; namecheapcli help; printf \"\\n$ env GOCACHE=/Users/alramalho/workspace/namecheapcli/.cache/go-build go test ./...\\n\"; env GOCACHE=/Users/alramalho/workspace/namecheapcli/.cache/go-build go test ./...; printf \"\\nGlobal config lives at ~/.namecheapcli; env vars still override it.\\n\"'","title":"namecheapcli CLI demo","env":{"SHELL":"/opt/homebrew/bin/zsh"}}
+[0.025, "o", "\u001b[3J\u001b[H\u001b[2J"]
+[0.000, "o", "namecheapcli demo\r\n\r\n$ command -v namecheapcli\r\n"]
+[0.000, "o", "/Users/alramalho/go/bin/namecheapcli\r\n\r\n$ namecheapcli help\r\n"]
+[0.182, "o", "Usage:\r\n  namecheapcli [--sandbox] [--json] domains list\r\n  namecheapcli [--sandbox] [--json] dns list example.com\r\n  namecheapcli [--sandbox] dns add example.com A @ 203.0.113.10 --ttl 1800 --dry-run\r\n  namecheapcli [--sandbox] dns set example.com CNAME www example.com --ttl 1800\r\n  namecheapcli [--sandbox] dns delete example.com TXT _verify --dry-run\r\n\r\nEnvironment:\r\n  NAMECHEAP_API_USER\r\n  NAMECHEAP_API_KEY\r\n  NAMECHEAP_USERNAME\r\n  NAMECHEAP_CLIENT_IP\r\n  NAMECHEAP_ENDPOINT       optional override\r\n\r\nConfig file:\r\n  ~/.namecheapcli         optional KEY=VALUE file; env vars override it\r\n\r\nNote: Namecheap setHosts replaces the full DNS host set. Mutation commands first fetch\r\nthe current records, modify them locally, then submit the complete resulting set.\r\n"]
+[0.001, "o", "\r\n$ env GOCACHE=/Users/alramalho/workspace/namecheapcli/.cache/go-build go test ./...\r\n"]
+[0.134, "o", "ok  \tgithub.com/alramalho/namecheapcli/cmd/namecheapcli\t(cached)\r\n"]
+[0.001, "o", "ok  \tgithub.com/alramalho/namecheapcli/internal/namecheap\t(cached)\r\n"]
+[0.011, "o", "\r\nGlobal config lives at ~/.namecheapcli; env vars still override it.\r\n"]
+[0.000, "x", "0"]

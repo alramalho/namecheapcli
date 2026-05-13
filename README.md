@@ -4,7 +4,18 @@ Small CLI wrapper for Namecheap domain and DNS record management.
 
 ## Configuration
 
-Create Namecheap API credentials and whitelist your current public IPv4 in Namecheap. Then export:
+Create Namecheap API credentials and whitelist your current public IPv4 in Namecheap.
+
+For day-to-day use, create a global config file at `~/.namecheapcli`:
+
+```sh
+NAMECHEAP_API_USER=your-api-user
+NAMECHEAP_API_KEY=your-api-key
+NAMECHEAP_USERNAME=your-username
+NAMECHEAP_CLIENT_IP=your-whitelisted-public-ip
+```
+
+You can also export the same values as environment variables:
 
 ```sh
 export NAMECHEAP_API_USER="your-api-user"
@@ -13,17 +24,43 @@ export NAMECHEAP_USERNAME="your-username"
 export NAMECHEAP_CLIENT_IP="your-whitelisted-public-ip"
 ```
 
+Environment variables override `~/.namecheapcli`, which is useful for CI or temporary credentials.
 Use `--sandbox` for Namecheap's sandbox API.
 
 ## Usage
 
-Install the CLI:
+Install the CLI globally:
 
 ```sh
 go install ./cmd/namecheapcli
 ```
 
-Then use the installed binary:
+After the repo is public, install it from anywhere with:
+
+```sh
+go install github.com/alramalho/namecheapcli/cmd/namecheapcli@latest
+```
+
+If your shell cannot find `namecheapcli` after install, add Go's binary directory to your `PATH`:
+
+```sh
+export PATH="$(go env GOPATH)/bin:$PATH"
+```
+
+For zsh, make that permanent:
+
+```sh
+echo 'export PATH="$(go env GOPATH)/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+You can verify the installed binary directly with:
+
+```sh
+"$(go env GOPATH)/bin/namecheapcli" help
+```
+
+Then use the installed binary from any directory:
 
 ```sh
 namecheapcli --sandbox domains list
