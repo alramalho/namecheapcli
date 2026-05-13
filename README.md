@@ -50,7 +50,7 @@ export PATH="$(go env GOPATH)/bin:$PATH"
 For zsh, make that permanent:
 
 ```sh
-echo 'export PATH="$(go env GOPATH)/bin:$PATH"' >> ~/.zshrc
+printf '\nexport PATH="$(go env GOPATH)/bin:$PATH"\n' >> ~/.zshrc
 source ~/.zshrc
 ```
 
